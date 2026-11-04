@@ -113,7 +113,9 @@ def keystrokes(text, t0, base, rng, scale=1.0, typos=True):
 # ---------------- build timeline from spec ----------------
 class Timeline:
     def __init__(self, spec, cache):
+        global THEME
         self.spec = spec
+        THEME = spec.get("theme", "navy")
         steps = spec["steps"]
         vo = tts_lines([s["say"] for s in steps], cache, spec.get("voice", "am_michael"), spec.get("speed", 1.08))
         rng = random.Random(spec.get("seed", 7))
@@ -211,16 +213,37 @@ HEADER, PAD, LH, CS = 66, 26, 50, 30
 NLINES = (LAYOUT["ed_y1"] - LAYOUT["ed_y0"] - HEADER - PAD * 2) // LH
 CODE_X = CX0 + 92
 
-_bg = None
+# Background themes: (base colour, glow colour added at the top, dot-grid delta, is_light)
+THEMES = {
+    "navy":   ((9, 12, 19), (20, 45, 95), 12, False),
+    "white":  ((248, 249, 251), (-6, -3, 6), -14, True),
+    "cream":  ((250, 246, 238), (-4, -8, -18), -14, True),
+    "mint":   ((236, 250, 245), (-14, -4, -10), -14, True),
+    "plum":   ((22, 12, 30), (60, 20, 70), 12, False),
+    "forest": ((8, 20, 16), (10, 55, 40), 12, False),
+    "char":   ((18, 18, 20), (30, 30, 34), 10, False),
+}
+THEME = "navy"
+def is_light(): return THEMES[THEME][3]
+_bg = {}
 def background():
-    global _bg
-    if _bg is None:
+    if THEME not in _bg:
+        base, glow, dot, _ = THEMES[THEME]
         y, x = np.mgrid[0:H, 0:W].astype(np.float32)
-        img = np.zeros((H, W, 3), np.float32) + np.array(BG, np.float32)
-        img += np.exp(-(((x - 540) / 700) ** 2 + ((y - 250) / 650) ** 2))[..., None] * np.array([20, 45, 95], np.float32)
-        img[((x % 54) < 3) & ((y % 54) < 3)] += 12
-        _bg = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)).convert("RGBA")
-    return _bg.copy()
+        img = np.zeros((H, W, 3), np.float32) + np.array(base, np.float32)
+        img += np.exp(-(((x - 540) / 700) ** 2 + ((y - 250) / 650) ** 2))[..., None] * np.array(glow, np.float32)
+        img[((x % 54) < 3) & ((y % 54) < 3)] += dot
+        _bg[THEME] = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)).convert("RGBA")
+    return _bg[THEME].copy()
+
+INK = (17, 24, 39)
+DARKER = {YEL: (176, 120, 0), (110, 255, 210): (12, 140, 110), (63, 220, 130): (20, 140, 70), (255, 159, 67): (200, 95, 10), (88, 166, 255): (30, 100, 200), (255, 92, 92): (200, 40, 40)}
+def on_bg(col):
+    """Text colour adjusted for the current background."""
+    if not is_light(): return col
+    if col == WHITE: return INK
+    if col == GREY: return (90, 100, 116)
+    return DARKER.get(tuple(col), col)
 
 _assets = {}
 def asset(name):
@@ -247,8 +270,8 @@ def draw_caption(img, text, t, s, hot):
     for li, (ws, lw) in enumerate(lines):
         x = (W - lw) / 2; y = top + li * 72 + (1 - p) * 10
         for w, ww in ws:
-            d.text((x + 3, y + 5), w, font=f, fill=(0, 0, 0, int(A * 0.6)))
-            d.text((x, y), w, font=f, fill=word_col(w, hot) + (A,)); x += ww + sp
+            if not is_light(): d.text((x + 3, y + 5), w, font=f, fill=(0, 0, 0, int(A * 0.6)))
+            d.text((x, y), w, font=f, fill=on_bg(word_col(w, hot)) + (A,)); x += ww + sp
     img.alpha_composite(L, (0, LAYOUT["cap_y"] - 100))
 
 def draw_editor(img, tl, t):
@@ -353,8 +376,8 @@ def draw_note(img, tl, t):
             img.alpha_composite(L)
 
 def ctext(d, xy, s, f, col, a=255):
-    d.text((xy[0] + 3, xy[1] + 5), s, font=f, fill=(0, 0, 0, int(a * 0.55)), anchor="mm")
-    d.text(xy, s, font=f, fill=col + (a,), anchor="mm")
+    if not is_light(): d.text((xy[0] + 3, xy[1] + 5), s, font=f, fill=(0, 0, 0, int(a * 0.55)), anchor="mm")
+    d.text(xy, s, font=f, fill=on_bg(col) + (a,), anchor="mm")
 
 def wrap(text, f, maxw):
     words = text.split(); lines, cur = [], ""
@@ -373,14 +396,14 @@ def draw_intro(img, spec, t, dur):
     f = font(F_BOLD, 34); tw = f.getlength(lab)
     col = spec.get("color", ORANGE)
     d.rounded_rectangle((W / 2 - tw / 2 - 28, 440, W / 2 + tw / 2 + 28, 502), radius=31, fill=tuple(int(v * 0.25) for v in col) + (A,))
-    d.text((W / 2, 471), lab, font=f, fill=col + (A,), anchor="mm")
+    d.text((W / 2, 471), lab, font=f, fill=on_bg(col) + (A,), anchor="mm")
     ft = font(F_BLACK, spec.get("title_size", 92))
     for i, ln in enumerate(wrap(spec["title"], ft, 960)):
         q = ease((t - 0.25 - i * 0.12) / 0.35); Aq = int(255 * q * a_out)
         ctext(d, (W / 2, 610 + i * 108 + (1 - q) * 20), ln, ft, WHITE, Aq)
     if spec.get("subtitle"):
         q = ease((t - 0.8) / 0.35)
-        d.text((W / 2, 900), spec["subtitle"], font=font(F_BOLD, 44), fill=GREY + (int(255 * q * a_out),), anchor="mm")
+        d.text((W / 2, 900), spec["subtitle"], font=font(F_BOLD, 44), fill=on_bg(GREY) + (int(255 * q * a_out),), anchor="mm")
     img.alpha_composite(L)
     b = asset("byte_wave.png").resize((460, 460))
     q = ease((t - 0.5) / 0.4) * a_out
@@ -399,7 +422,7 @@ def draw_outro(img, spec, t0, t):
         q = ease((lt - 0.9) / 0.35)
         if q > 0:
             f = font(F_BOLD, 40); s = "Next: " + spec["next"]; tw = f.getlength(s); A = int(255 * q)
-            d.rounded_rectangle((W / 2 - tw / 2 - 30, 740, W / 2 + tw / 2 + 30, 812), radius=36, fill=(44, 50, 64, A))
+            d.rounded_rectangle((W / 2 - tw / 2 - 30, 740, W / 2 + tw / 2 + 30, 812), radius=36, fill=((44, 50, 64) if not is_light() else (17, 24, 39)) + (A,))
             d.text((W / 2, 776), s, font=f, fill=WHITE + (A,), anchor="mm")
     img.alpha_composite(L)
     q = ease((lt - 0.3) / 0.4)
