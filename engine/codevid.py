@@ -54,9 +54,9 @@ def tts_lines(texts, cache_dir, voice="am_michael", speed=1.08):
     return [(p, sf.info(p).duration) for p in out]
 
 # ---------------- syntax colouring ----------------
-KW = set("import from export class const let var return async await new interface type extends implements constructor private public protected readonly function if else throw for of in while try catch finally default as typeof void null undefined true false this static".split())
+KW = set("import from export class const let var return async await new interface type extends implements constructor private public protected readonly function if else throw for of in while try catch finally default as typeof void null undefined true false this static model generator datasource enum".split())
 TYPES = set("string number boolean any unknown never void".split())
-TOK = re.compile(r"(//.*)|('[^']*'?|\"[^\"]*\"?|`[^`]*`?)|(@\w+)|(\d+)|([A-Za-z_$][\w$]*)|(\s+)|(.)")
+TOK = re.compile(r"((?<![:\w])//.*)|('[^']*'?|\"[^\"]*\"?|`[^`]*`?)|(@\w+)|(\d+)|([A-Za-z_$][\w$]*)|(\s+)|(.)")
 def colorize(line, lang="ts"):
     if lang == "sh":
         out = []

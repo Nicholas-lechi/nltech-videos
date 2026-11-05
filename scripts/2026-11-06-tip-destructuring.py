@@ -1,0 +1,21 @@
+SPEC = {
+ "series": "60-SECOND TIP", "episode": "", "title": "Destructuring with default values",
+ "subtitle": "Cleaner JavaScript in one line", "color": (255, 210, 63), "title_size": 88,
+ "next": "console.table + 3 more console tricks", "seed": 31, "theme": "white",
+ "hot": {"undefined,": (255, 92, 92), "null.": (255, 92, 92)},
+ "steps": [
+  {"say": "Here's how a lot of us pull values out of an object. One line for each property, plus a fallback.",
+   "do": [("open", "tip.js", ""), ("type", "const user = { name: 'Ada' };\n\n// the long way\nconst userName = user.name;\nconst userRole = user.role || 'guest';")]},
+  {"say": "With destructuring, you grab them all in one line, and set the default right there.",
+   "do": [("type", "\n\n// destructuring with defaults\nconst { name, role = 'guest' } = user;\nconsole.log(name, role);"), ("hl", 8, 8)]},
+  {"say": "Run it. Role was missing, so it falls back to guest.", "do": [("term", "node tip.js", ["Ada guest"])]},
+  {"say": "It works on function parameters too. Perfect for options objects.",
+   "do": [("type", "\n\nfunction connect({\n  host = 'localhost',\n  port = 5432,\n} = {}) {\n  console.log(`${host}:${port}`);\n}\n\nconnect();\nconnect({ port: 3000 });")]},
+  {"say": "The equals empty object at the end means you can call it with no arguments at all, and it won't crash.",
+   "cap": "The = {} at the end means you can call it with no arguments at all, and it won't crash.",
+   "do": [("hl", 14, 14), ("term", "node tip.js", ["Ada guest", "localhost:5432", "localhost:3000"])]},
+  {"say": "One catch. Defaults only kick in for undefined, not for null.",
+   "do": [("note", "Defaults apply to undefined only, not null")]},
+  {"say": "Save this, and follow for a new tip every day.", "do": []},
+ ],
+}
