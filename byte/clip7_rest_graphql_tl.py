@@ -213,7 +213,8 @@ def panel_F(t):
     if a > 0: pill(d, "Next: SQL vs NoSQL", 540, 470 + (1 - a) * 14, WHITE, (60, 40, 80), size=36, a=int(255 * a))
     return L
 
-PANELS = [panel_A, panel_B, panel_C, panel_D, panel_E, panel_F]
+def _panel_A_cover(t): return panel_A(t + 3.0)
+PANELS = [_panel_A_cover, panel_B, panel_C, panel_D, panel_E, panel_F]
 exec(_sec("# ---------------- captions"))
 def cap_text(s): return s.replace("slash users", "/users").replace("slash posts", "/posts")
 CAPTIONS = [c for i in range(len(VO)) for c in chunks_for(i)]

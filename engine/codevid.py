@@ -389,27 +389,26 @@ def wrap(text, f, maxw):
     return lines
 
 def draw_intro(img, spec, t, dur):
+    """Cover-first title card: fully visible from frame 0 so the feed preview is never blank."""
     a_out = 1 - ease((t - dur + 0.3) / 0.3)
+    A = int(255 * a_out)
     L = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(L)
-    p = ease(t / 0.35); A = int(255 * p * a_out)
-    lab = f"{spec['series']}  ·  {spec['episode']}" if spec.get("episode") else spec["series"]
-    f = font(F_BOLD, 34); tw = f.getlength(lab)
     col = spec.get("color", ORANGE)
-    d.rounded_rectangle((W / 2 - tw / 2 - 28, 440, W / 2 + tw / 2 + 28, 502), radius=31, fill=tuple(int(v * 0.25) for v in col) + (A,))
-    d.text((W / 2, 471), lab, font=f, fill=on_bg(col) + (A,), anchor="mm")
-    ft = font(F_BLACK, spec.get("title_size", 92))
-    for i, ln in enumerate(wrap(spec["title"], ft, 960)):
-        q = ease((t - 0.25 - i * 0.12) / 0.35); Aq = int(255 * q * a_out)
-        ctext(d, (W / 2, 610 + i * 108 + (1 - q) * 20), ln, ft, WHITE, Aq)
+    lab = f"{spec['series']}  ·  {spec['episode']}" if spec.get("episode") else spec["series"]
+    f = font(F_BOLD, 40); tw = f.getlength(lab)
+    d.rounded_rectangle((W / 2 - tw / 2 - 34, 400, W / 2 + tw / 2 + 34, 474), radius=37, fill=col + (A,))
+    d.text((W / 2, 437), lab, font=f, fill=(17, 24, 39, A), anchor="mm")
+    ft = font(F_BLACK, spec.get("title_size", 104) + 12)
+    lines = wrap(spec["title"], ft, 980)
+    for k, ln in enumerate(lines):
+        ctext(d, (W / 2, 590 + k * 124), ln, ft, WHITE, A)
+    y_sub = 590 + len(lines) * 124 + 10
     if spec.get("subtitle"):
-        q = ease((t - 0.8) / 0.35)
-        d.text((W / 2, 900), spec["subtitle"], font=font(F_BOLD, 44), fill=on_bg(GREY) + (int(255 * q * a_out),), anchor="mm")
+        d.text((W / 2, y_sub), spec["subtitle"], font=font(F_BOLD, 48), fill=on_bg(GREY) + (A,), anchor="mm")
     img.alpha_composite(L)
-    b = asset("byte_wave.png").resize((460, 460))
-    q = ease((t - 0.5) / 0.4) * a_out
-    if q > 0:
-        bb = b.copy(); bb.putalpha(b.getchannel("A").point(lambda v: int(v * q)))
-        img.alpha_composite(bb, (310, int(1000 + 10 * math.sin(t * 3.5) + (1 - q) * 40)))
+    b = asset("byte_wave.png").resize((520, 520))
+    if a_out < 0.999: b.putalpha(b.getchannel("A").point(lambda v: int(v * a_out)))
+    img.alpha_composite(b, (280, int(y_sub + 60 + 10 * math.sin(t * 3.5))))
 
 def draw_outro(img, spec, t0, t):
     lt = t - t0
@@ -517,6 +516,9 @@ def main():
     cache = os.path.join(work, "vo")
     tl = Timeline(load_spec(spec_path), cache)
     print(f"duration {tl.DURATION:.1f}s", flush=True)
+    if "--cover" in sys.argv:
+        cp = os.path.splitext(out)[0] + "-cover.jpg"
+        frame(tl, 0.5).save(cp, quality=92); print(cp); return
     if "--stills" in sys.argv:
         ts = [1.5] + [v[0] + v[2] * 0.8 for v in tl.vo[::max(1, len(tl.vo) // 10)]] + [tl.CODE_END + 2.5]
         ims = [frame(tl, x).resize((270, 480)) for x in ts]
