@@ -1,0 +1,27 @@
+HELPERS = "const ok = (v) => Promise.resolve(v);\nconst fail = (e) => Promise.reject(new Error(e));"
+SPEC = {
+ "series": "60-SECOND TIP", "episode": "", "title": "Promise.all vs Promise.allSettled",
+ "subtitle": "Don't lose everything to one error", "color": (255, 210, 63), "title_size": 84,
+ "next": "TypeScript's satisfies operator", "seed": 61, "theme": "mint",
+ "hot": {"promise.all": (255, 92, 92), "allsettled": (63, 220, 130), "allsettled.": (63, 220, 130)},
+ "steps": [
+  {"say": "Your page loads a user, their posts, and their likes, all at the same time, with Promise all.",
+   "cap": "Your page loads a user, their posts, and their likes, all at the same time, with Promise.all.",
+   "do": [("open", "all.mjs", HELPERS), ("type", "\n\nconst results = await Promise.all([\n  ok('user'), fail('posts down'), ok('likes'),\n]);")]},
+  {"say": "But the posts request fails. Watch what happens.", "do": [("term", "node all.mjs", ["file:///all.mjs:2", "Error: posts down", "    at fail (all.mjs:2:36)"])]},
+  {"say": "One failure, and Promise all throws away everything. You lose the user and the likes too.",
+   "cap": "One failure, and Promise.all throws away everything. You lose the user and the likes too.",
+   "do": [("note", "One rejection = everything rejected")]},
+  {"say": "Promise all settled waits for every promise, and tells you how each one went.",
+   "cap": "Promise.allSettled waits for every promise, and tells you how each one went.",
+   "do": [("open", "settled.mjs", HELPERS), ("type", "\n\nconst results = await Promise.allSettled([\n  ok('user'), fail('posts down'), ok('likes'),\n]);\nconsole.log(results.map((r) => r.status));"),
+          ("term", "node settled.mjs", ["[ 'fulfilled', 'rejected', 'fulfilled' ]"])]},
+  {"say": "Then keep the ones that worked. The user and the likes still show up.",
+   "do": [("type", "\n\nconst values = results\n  .filter((r) => r.status === 'fulfilled')\n  .map((r) => r.value);\nconsole.log(values);"),
+          ("term", "node settled.mjs", ["[ 'fulfilled', 'rejected', 'fulfilled' ]", "[ 'user', 'likes' ]"])]},
+  {"say": "So, use Promise all when everything must succeed, like saving an order and its payment. Use all settled when partial results are fine, like loading a dashboard.",
+   "cap": "So, use Promise.all when everything must succeed, like saving an order and its payment. Use allSettled when partial results are fine, like loading a dashboard.",
+   "do": [("note", "all: all or nothing  ·  allSettled: keep what worked")]},
+  {"say": "Save this, and follow for a new tip every day.", "do": []},
+ ],
+}
