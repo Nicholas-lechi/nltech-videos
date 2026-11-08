@@ -1,0 +1,23 @@
+SPEC = {
+ "series": "60-SECOND TIP", "episode": "", "title": "TypeScript's satisfies operator",
+ "subtitle": "Check the type, keep the details", "color": (255, 210, 63), "title_size": 88,
+ "next": "Array.at() and structuredClone()", "seed": 81, "theme": "cream",
+ "hot": {"satisfies": (63, 220, 130), "satisfies,": (63, 220, 130), "typo": (255, 92, 92), "typo.": (255, 92, 92)},
+ "steps": [
+  {"say": "Here's a color type, and a palette type that maps any name to one of those colors.",
+   "do": [("open", "colors.ts", ""), ("type", "type Color = 'red' | 'green' | 'blue';\ntype Palette = Record<string, Color>;")]},
+  {"say": "Most people annotate their object like this. TypeScript checks it, but then it forgets the exact keys you wrote.",
+   "do": [("type", "\n\nconst theme: Palette = {\n  primary: 'red',\n  accent: 'blue',\n};\n\ntheme.primry; // typo!"), ("hl", 9, 9)]},
+  {"say": "So this typo goes straight through. No error at all.",
+   "do": [("term", "npx tsc --noEmit", ["(nothing printed: it compiles fine)"]), ("note", "Typo not caught")]},
+  {"say": "Now use satisfies instead. TypeScript still checks every value against the palette type, but it remembers your exact keys.",
+   "do": [("type", "\n\nconst theme2 = {\n  primary: 'red',\n  accent: 'blue',\n} satisfies Palette;\n\ntheme2.primry;"), ("hl", 14, 14)]},
+  {"say": "Run the compiler again, and the typo is caught. It even suggests the right name.",
+   "do": [("term", "npx tsc --noEmit", ["colors.ts:16:8 - error TS2551: Property", "  'primry' does not exist on type", "  ... Did you mean 'primary'?"])]},
+  {"say": "And it still checks the values. Purple isn't a valid color, so that's an error too.",
+   "do": [("type", "\n\nconst bad = {\n  primary: 'purple',\n} satisfies Palette;"), ("term", "npx tsc --noEmit", ["colors.ts:19:3 - error TS2322: Type", "  '\"purple\"' is not assignable to type 'Color'."])]},
+  {"say": "So, a type annotation checks and forgets. Satisfies checks and remembers. Save this, and follow for a new tip every day.",
+   "cap": "So, a type annotation checks and forgets. satisfies checks and remembers. Save this, and follow for a new tip every day.",
+   "do": [("note", ": Type  checks & forgets  ·  satisfies  checks & remembers")]},
+ ],
+}
