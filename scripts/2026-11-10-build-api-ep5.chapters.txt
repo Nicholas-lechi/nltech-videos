@@ -1,0 +1,12 @@
+0:00 Intro
+0:17 User model in Prisma
+0:41 Migration + install bcrypt
+0:55 Users module, service, controller
+1:10 RegisterDto validation
+1:38 UsersService setup
+2:34 Check for duplicate email (409)
+3:06 bcrypt.hash and cost factor
+3:17 Save the hash, never return it
+3:45 POST /users/register route
+4:47 Live tests
+5:33 What's next
