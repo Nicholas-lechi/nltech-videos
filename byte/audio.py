@@ -31,7 +31,7 @@ for t in EVENTS['pop']:
     n=np.arange(int(0.25*SR))/SR; add(t,0.14*np.sin(2*np.pi*(600+500*np.exp(-n*30))*n)*np.exp(-n*16))
 for t in EVENTS['ding']:
     n=np.arange(int(0.6*SR))/SR; add(t,0.12*(np.sin(2*np.pi*1318*n)+0.6*np.sin(2*np.pi*1975*n))*np.exp(-n*7))
-for t in EVENTS['buzz']:
+for t in []:  # buzz sound removed for good
     n=np.arange(int(0.35*SR))/SR; add(t,0.12*np.sign(np.sin(2*np.pi*150*n))*np.exp(-n*8))
 for t in EVENTS['swish']:
     L=int(0.3*SR); nz=np.convolve(rng.standard_normal(L),np.ones(6)/6,'same'); add(t,0.0*nz*np.sin(np.pi*np.arange(L)/L)**2)
