@@ -1,0 +1,23 @@
+SPEC = {
+ "series": "60-SECOND TIP", "episode": "", "title": "Array.at() and structuredClone()",
+ "subtitle": "Two modern JS tricks you should use", "color": (255, 210, 63), "title_size": 86, "theme": "navy",
+ "next": "VS Code shortcuts that save hours", "seed": 101,
+ "hot": {"at": (255, 210, 63), "structuredclone": (63, 220, 130), "shallow": (255, 92, 92)},
+ "steps": [
+  {"say": "Getting the last item of an array usually looks like this. It works, but it's clunky.",
+   "do": [("open", "tip.js", ""), ("type", "const scores = [10, 20, 30, 40];\n\nscores[scores.length - 1]; // 40")]},
+  {"say": "With at, you can use a negative index. At minus one is the last item, and minus two is the one before it.",
+   "cap": "With .at(), you can use a negative index. at(-1) is the last item, and at(-2) is the one before it.",
+   "do": [("type", "\n\nscores.at(-1); // 40\nscores.at(-2); // 30")]},
+  {"say": "Now, copying objects. The spread operator only makes a shallow copy. Change a nested value in the copy, and the original changes too.",
+   "do": [("type", "\n\nconst user = {\n  name: 'Ada',\n  address: { city: 'Lagos' },\n};\nconst copy = { ...user };\ncopy.address.city = 'Abuja';\nconsole.log(user.address.city);"),
+          ("term", "node tip.js", ["Abuja"]), ("note", "Shallow copy: nested objects are shared")]},
+  {"say": "Structured clone makes a real deep copy. Change the clone, and the original keeps its value.",
+   "cap": "structuredClone() makes a real deep copy. Change the clone, and the original keeps its value.",
+   "do": [("type", "\n\nconst deep = structuredClone(user);\ndeep.address.city = 'Port Harcourt';\nconsole.log(user.address.city, deep.address.city);"),
+          ("term", "node tip.js", ["Abuja", "Abuja Port Harcourt"])]},
+  {"say": "Both work in every modern browser, and in Node seventeen and up. Save this, and follow for a new tip every day.",
+   "cap": "Both work in every modern browser, and in Node 17+. Save this, and follow for a new tip every day.",
+   "do": [("note", ".at(-1) last item  ·  structuredClone() deep copy")]},
+ ],
+}
