@@ -7,8 +7,8 @@ from codevid import tts_lines
 
 FPS = 30
 LINES = [
-    ("intro", "Hey! I'm Byte, and I just got a 3D upgrade."),
-    ("cards", "Quick one: let versus const."),
+    ("intro", "let or const? Which one should you actually use?"),
+    ("cards", "Here's the difference."),
     ("let", "Use let when the value will change later."),
     ("const", "Use const when it never changes. Start with const by default."),
     ("outro", "Follow for a new dev tip every day!"),
