@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face{font-family:IDB;src:url(file:///home/claude/nltech-videos/engine/fonts/InterDisplay-Black.otf)}
+@font-face{font-family:IDBold;src:url(file:///home/claude/nltech-videos/engine/fonts/InterDisplay-Bold.otf)}
+@font-face{font-family:ISemi;src:url(file:///home/claude/nltech-videos/engine/fonts/Inter-SemiBold.otf)}
+@font-face{font-family:JBM;src:url(file:///home/claude/nltech-videos/engine/fonts/JetBrainsMonoNL-Medium.ttf)}
+:root{--bg1:#0b1630;--bg2:#1d2f6b;--ink:#ffffff;--muted:#a9b6d8;--hi:#ffd23f;--chip:#2f6bff}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:linear-gradient(180deg,var(--bg1),var(--bg2));font-family:ISemi}
+#grid{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 2px,transparent 2px);background-size:54px 54px}
+#wm{position:absolute;top:56px;left:50%;transform:translateX(-50%);width:230px}
+#chip{position:absolute;top:158px;left:0;right:0;text-align:center}
+#chip span{display:inline-block;background:var(--chip);color:#fff;font:30px IDB;letter-spacing:2px;padding:10px 22px;border-radius:999px}
+#ttl{position:absolute;top:214px;left:40px;right:40px;text-align:center;font:52px IDB;color:var(--ink);letter-spacing:-.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#clip{position:absolute;left:28px;top:300px;width:1024px;height:1180px;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08)}
+#win{position:absolute;inset:0;background:#1f1f1f;transform-origin:50% 50%;display:flex;flex-direction:column}
+.titlebar{height:44px;background:#181818;border-bottom:1px solid #2b2b2b;display:flex;align-items:center;padding:0 16px;color:#9d9d9d;font:21px ISemi;position:relative;flex:none}
+.titlebar .dots{display:flex;gap:9px}.titlebar .dots i{width:14px;height:14px;border-radius:50%;display:block}
+.titlebar .t{position:absolute;left:0;right:0;text-align:center;pointer-events:none}
+.body{flex:1;display:flex;min-height:0}
+.act{width:58px;background:#181818;border-right:1px solid #2b2b2b;display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:26px;flex:none}
+.act b{width:28px;height:28px;border:3px solid #868686;border-radius:6px;display:block;opacity:.85}
+.act b.on{border-color:#d7d7d7}
+.side{background:#181818;border-right:1px solid #2b2b2b;overflow:hidden;flex:none;color:#cccccc;font:22px ISemi}
+.side .h{padding:14px 20px;font-size:17px;letter-spacing:1px;color:#9d9d9d;white-space:nowrap}
+.side .f{padding:6px 20px;white-space:nowrap}.side .file{padding:7px 20px 7px 50px;white-space:nowrap;display:flex;gap:10px;align-items:center}
+.side .file.sel{background:#04395e;outline:1px solid #0078d4}
+.js{color:#f1e05a;font:bold 17px JBM}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.tabs{height:50px;background:#181818;display:flex;flex:none;border-bottom:1px solid #2b2b2b}
+.tab{display:flex;align-items:center;gap:10px;padding:0 22px;color:#9d9d9d;font:21px ISemi;border-right:1px solid #2b2b2b}
+.tab.on{background:#1f1f1f;color:#ffffff;box-shadow:inset 0 2px 0 #0078d4}
+.crumbs{height:34px;color:#a9a9a9;font:19px ISemi;display:flex;align-items:center;padding-left:22px;flex:none}
+.ed{flex:1;position:relative;overflow:hidden;font:36px/56px JBM;color:#cccccc}
+.lines{position:absolute;left:0;right:0}
+.ln{display:flex;height:56px;white-space:pre}
+.ln .n{width:74px;text-align:right;padding-right:26px;color:#6e7681;flex:none}
+.ln.cur{background:rgba(255,255,255,.04)}.ln.cur .n{color:#cccccc}
+.ln.hl{background:rgba(255,210,63,.16);box-shadow:inset 4px 0 0 #ffd23f}
+.caret{position:absolute;width:3px;height:40px;background:#aeafad}
+.welcome{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#4a4a4a;font:24px ISemi;gap:16px}
+.welcome .logo{width:150px;height:150px;border-radius:30px;background:#2a2a2a}
+.panel{height:370px;background:#181818;border-top:1px solid #2b2b2b;flex:none;display:flex;flex-direction:column}
+.ptabs{height:44px;display:flex;gap:30px;padding-left:22px;align-items:center;color:#8b8b8b;font:17px ISemi;letter-spacing:.5px;flex:none}
+.ptabs .on{color:#e7e7e7;box-shadow:0 13px 0 -11px #0078d4}
+.term{flex:1;padding:8px 22px;font:28px/42px JBM;color:#cccccc;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:flex-end}.term>div{white-space:pre}
+.term .p1{color:#3fb950}.term .p2{color:#58a6ff}
+.status{height:34px;background:#007acc;color:#fff;font:19px ISemi;display:flex;align-items:center;gap:26px;padding:0 16px;flex:none}
+.status .r{margin-left:auto;display:flex;gap:26px}
+.hljs-keyword{color:#569cd6}.hljs-string{color:#ce9178}.hljs-number{color:#b5cea8}.hljs-built_in,.hljs-variable{color:#9cdcfe}
+.hljs-title.function_,.hljs-title{color:#dcdcaa}.hljs-comment{color:#6a9955}.hljs-literal{color:#569cd6}.hljs-property{color:#dcdcaa}.hljs-attr{color:#9cdcfe}
+#note{position:absolute;right:24px;bottom:430px;max-width:820px;background:#ffffff;color:#111a33;font:34px IDB;padding:20px 28px;border-radius:18px;box-shadow:0 18px 40px rgba(0,0,0,.4);border-left:10px solid var(--hi);transform-origin:100% 100%}
+#mouse{position:absolute;width:34px;height:48px;left:0;top:0;z-index:9}
+#ring{position:absolute;width:60px;height:60px;border-radius:50%;border:4px solid rgba(255,210,63,.9);z-index:8;opacity:0}
+#card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,16,32,.78);backdrop-filter:blur(6px);color:#fff;text-align:center;gap:20px;z-index:10}
+#card .d{font:40px IDB;color:var(--hi);letter-spacing:3px}
+#card .h{font:96px/1.02 IDB;letter-spacing:-2px;padding:0 50px}
+#card .s{font:38px IDBold;color:#c8d2ee}
+#cap{position:absolute;left:50px;right:50px;top:1530px;height:230px;display:flex;align-items:center;justify-content:center;text-align:center;font:66px/1.14 IDB;color:var(--ink);letter-spacing:-.5px}
+#cap b{color:var(--hi);font-weight:inherit}
+#prog{position:absolute;left:90px;right:90px;top:1820px;height:10px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden}
+#prog i{position:absolute;left:0;top:0;bottom:0;background:var(--hi);border-radius:5px}
+#progl{position:absolute;left:0;right:0;top:1846px;text-align:center;color:var(--muted);font:26px IDBold;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div id="grid"></div>
+<img id="wm" src="file:///home/claude/nltech-videos/engine/assets/watermark_nltech.png">
+<div id="chip"><span id="chipt"></span></div>
+<div id="ttl"></div>
+<div id="clip"><div id="win">
+  <div class="titlebar"><div class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div><div class="t" id="wtitle"></div></div>
+  <div class="body">
+    <div class="act"><b class="on"></b><b></b><b></b><b></b></div>
+    <div class="side" id="side"><div class="h">EXPLORER</div><div class="f" id="folder"></div><div id="files"></div></div>
+    <div class="main">
+      <div class="tabs" id="tabs"></div>
+      <div class="crumbs" id="crumbs"></div>
+      <div class="ed" id="ed"><div class="welcome" id="welcome"><div class="logo"></div><div>Show All Commands&nbsp;&nbsp;Ctrl + Shift + P</div><div>Open File&nbsp;&nbsp;Ctrl + O</div></div><div class="lines" id="lines"></div><div class="caret" id="caret"></div></div>
+      <div class="panel"><div class="ptabs"><span>PROBLEMS</span><span>OUTPUT</span><span>DEBUG CONSOLE</span><span class="on">TERMINAL</span></div><div class="term" id="term"></div></div>
+    </div>
+  </div>
+  <div class="status"><span>⎇ main</span><span>⊗ 0 ⚠ 0</span><div class="r"><span id="pos">Ln 1, Col 1</span><span>Spaces: 2</span><span>UTF-8</span><span id="lang">Plain Text</span></div></div>
+  <div id="note"></div>
+  <div id="ring"></div>
+  <svg id="mouse" viewBox="0 0 34 48"><path d="M2 2 L2 38 L11 30 L18 45 L25 42 L18 27 L30 27 Z" fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/></svg>
+</div>
+<div id="card"><div class="d" id="cd"></div><div class="h" id="ch"></div><div class="s" id="cs"></div></div>
+</div>
+<div id="cap"></div>
+<div id="prog"><i id="progi"></i></div>
+<div id="progl"></div>
+<script src="file:///home/claude/vsc/node_modules/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script>
+const TL=window.__TL__,S=TL.spec,E=TL.events;
+const THEMES={navy:['#0b1630','#1d2f6b','#ffffff','#a9b6d8','#ffd23f','#2f6bff'],plum:['#1d0f2e','#4a1f6b','#ffffff','#cdb6e6','#ffd23f','#a855f7'],
+ forest:['#071f17','#0f4a35','#ffffff','#a8d8c2','#ffd23f','#10b981'],char:['#0e0f12','#23262e','#ffffff','#a7acb8','#ffd23f','#f97316'],
+ white:['#f7f9fc','#e4ebf7','#111a33','#5b6684','#2f6bff','#2f6bff'],cream:['#fbf6ec','#f1e6cf','#2a1d0e','#7a6545','#d9480f','#d9480f'],mint:['#effcf7','#cdf3e4','#0e2a22','#4e7a6b','#0c8a5f','#0c8a5f']};
+const th=THEMES[S.theme]||THEMES.navy;['--bg1','--bg2','--ink','--muted','--hi','--chip'].forEach((k,i)=>document.documentElement.style.setProperty(k,th[i]));
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),eo=x=>{x=clamp(x);return 1-Math.pow(1-x,3)},eio=x=>{x=clamp(x);return x*x*(3-2*x)};
+const back=x=>{x=clamp(x);const c=1.7;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const $=id=>document.getElementById(id);
+$('chipt').textContent=`${S.series} · DAY ${S.day}`;$('ttl').textContent=S.title;
+$('folder').textContent='▾ '+S.folder.toUpperCase();
+$('cd').textContent=`DAY ${S.day} OF ${S.of}`;$('ch').textContent=S.title;$('cs').textContent=S.series.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+$('progl').textContent=`DAY ${S.day} / ${S.of}`;$('progi').style.width=(S.day/S.of*100)+'%';
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const LH=56,GUT=74,CW=21.6;
+
+function state(t){
+  const st={files:[],active:null,content:{},sidebar:true,term:[],termInput:null,hl:null,note:null,typing:false,zoom:false,mouse:{to:'center',t:-9}};
+  let prevMouse={to:'center',t:-9};
+  for(const e of E){
+    if(e.t>t&&e.k!=='type'&&e.k!=='term')continue;
+    if(e.k==='open'&&e.t<=t){if(!st.files.includes(e.file))st.files.push(e.file);st.active=e.file;if(!(e.file in st.content))st.content[e.file]=e.init}
+    else if(e.k==='sidebar'&&e.t<=t)st.sidebar=e.open;
+    else if(e.k==='mouse'&&e.t<=t){prevMouse=st.mouse;st.mouse={to:e.to,t:e.t,file:e.file};st.prev=prevMouse}
+    else if(e.k==='type'&&e.t<=t){let s=st.content[st.active]||'';for(const[kt,ch]of e.keys){if(kt>t)break;s=ch==='\b'?s.slice(0,-1):s+ch}st.content[st.active]=s;if(t<e.end+0.2){st.typing=true}if(e.zoom&&t<e.end+0.9)st.zoom={t0:e.t,t1:e.end}}
+    else if(e.k==='term'&&e.t-0.7<=t){let cmd='';for(const[kt,ch]of e.keys){if(kt>t)break;cmd=ch==='\b'?cmd.slice(0,-1):cmd+ch}
+      if(t<e.enter)st.termInput=cmd;else{st.term.push({cmd});for(const[ot,o]of e.out)if(ot<=t)st.term.push({out:o})}}
+    else if(e.k==='clear'&&e.t<=t)st.term=[];
+    else if(e.k==='hl'&&e.t<=t&&t<e.until)st.hl=e;
+    else if(e.k==='note'&&e.t<=t&&t<e.until+0.3)st.note=e;
+  }
+  return st;
+}
+let lastKey='';
+const PROMPT=()=>`<span class="p1">nicholas@nltech</span>:<span class="p2">~/${S.folder}</span>$ `;
+function caretXY(st){const s=st.content[st.active]||'';const ls=s.split('\n');return{line:ls.length-1,col:ls[ls.length-1].length}}
+function targetXY(st,to){
+  const side=st.sidebar?250:0;
+  if(to==='explorer')return[90+60,44+14+50+42*2];
+  if(to==='terminal')return[58+side+400,1180-34-370+44+120];
+  if(to==='editor'){const c=caretXY(st);return[58+side+GUT+c.col*CW+40,44+50+34+c.line*LH+60]}
+  return[700,700];
+}
+window.renderAt=function(t){
+  const st=state(t);
+  const sw=st.sidebar?250:clamp(250*(1-eo((t-(E.find(e=>e.k==='sidebar')||{t:1e9}).t)/0.45)),0,250);
+  $('side').style.width=sw+'px';
+  $('welcome').style.display=st.active?'none':'flex';
+  $('wtitle').textContent=(st.active?st.active+' — ':'')+S.folder+' — Visual Studio Code';
+  $('lang').textContent=st.active?'JavaScript':'Plain Text';
+  $('files').innerHTML=st.files.map(f=>`<div class="file ${f===st.active?'sel':''}"><span class="js">JS</span>${f}</div>`).join('');
+  $('tabs').innerHTML=st.files.map(f=>`<div class="tab ${f===st.active?'on':''}"><span class="js">JS</span>${f}<span style="opacity:.6">×</span></div>`).join('');
+  $('crumbs').textContent=st.active?`${S.folder} › ${st.active}`:'';
+  const src=st.active?st.content[st.active]:'';
+  const html=st.active?hljs.highlight(src,{language:'javascript'}).value:'';
+  const c=caretXY(st);
+  const hlines=html.split('\n');const nl=st.active?Math.max(1,src.split('\n').length):0;
+  const visible=Math.floor((1180-44-50-34-370-34)/LH);
+  const scroll=Math.max(0,c.line-visible+2);
+  let out='';for(let i=0;i<nl;i++){const isH=st.hl&&i+1>=st.hl.l0&&i+1<=st.hl.l1;out+=`<div class="ln ${i===c.line&&!isH?'cur':''} ${isH?'hl':''}"><span class="n">${i+1}</span><span>${hlines[i]||''}</span></div>`}
+  if(out!==lastKey){$('lines').innerHTML=out;lastKey=out}
+  $('lines').style.top=(-scroll*LH)+'px';
+  const blink=st.typing||Math.floor(t*1.9)%2===0;
+  $('caret').style.display=st.active&&blink?'block':'none';
+  $('caret').style.left=(GUT+c.col*CW)+'px';$('caret').style.top=((c.line-scroll)*LH+6)+'px';
+  $('pos').textContent=`Ln ${c.line+1}, Col ${c.col+1}`;
+  $('term').innerHTML='<div>'+st.term.map(r=>r.cmd!==undefined?PROMPT()+esc(r.cmd):`<span>${esc(r.out)}</span>`).join('<br>')+(st.termInput!==null?(st.term.length?'<br>':'')+PROMPT()+esc(st.termInput)+'<span style="background:#ccc">&nbsp;</span>':(st.term.length?'<br>':'')+PROMPT())+'</div>';
+  let z=0;if(st.zoom){z=eio((t-st.zoom.t0)/0.6)*(1-eio((t-st.zoom.t1-0.3)/0.6))}
+  const [cx,cy]=targetXY(st,'editor');
+  $('win').style.transformOrigin=`${clamp(cx,300,800)}px ${clamp(cy,200,700)}px`;$('win').style.transform=`scale(${1+0.16*z})`;
+  if(st.note){const a=back((t-st.note.t)/0.45),o=1-eo((t-st.note.until)/0.3);$('note').style.display='block';$('note').textContent=st.note.text;$('note').style.transform=`scale(${a*o})`}else $('note').style.display='none';
+  const m=st.mouse,p=st.prev||{to:'center'};const [x1,y1]=targetXY(st,m.to),[x0,y0]=targetXY(st,p.to);const mk=eio((t-m.t)/0.7);
+  const mx=x0+(x1-x0)*mk,my=y0+(y1-y0)*mk;$('mouse').style.transform=`translate(${mx}px,${my}px) scale(${(t-m.t>0.72&&t-m.t<0.85&&m.to!=='editor')?0.85:1})`;
+  const rk=(t-m.t-0.75)/0.4;$('ring').style.opacity=(m.to!=='editor'&&rk>0&&rk<1)?1-rk:0;$('ring').style.transform=`translate(${x1-26}px,${y1-26}px) scale(${0.4+rk})`;
+  const endk=eo((t-(TL.duration-3.6))/0.5);let ca=Math.max(1-eo((t-3.6)/0.5),endk);
+  if(endk>0){$('cd').textContent='NEXT UP';$('ch').textContent=S.next;$('cs').textContent='Follow so you don\'t miss it 🔔'}
+  else{$('cd').textContent=`DAY ${S.day} OF ${S.of}`;$('ch').textContent=S.title;$('cs').textContent=S.series.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())}
+  $('card').style.display=ca<=0.001?'none':'flex';$('card').style.opacity=ca;
+  const b=TL.beats.find(b=>t>=b.t0-0.05&&t<=b.t1+0.25);let cap='';
+  if(b){const W=b.words,ch=[];for(let i=0;i<W.length;i+=5)ch.push(W.slice(i,i+5));let ci=0;ch.forEach((cc,i)=>{if(t>=cc[0].t-0.02)ci=i});
+    cap=ch[ci].map(w=>{const j=W.indexOf(w);return t>=w.t-0.02&&(j===W.length-1||t<W[j+1].t)?`<b>${esc(w.w)}</b>`:esc(w.w)}).join(' ')}
+  $('cap').innerHTML='<div>'+cap+'</div>';
+};
+window.ready=Promise.all([document.fonts.load('36px JBM'),document.fonts.load('60px IDB'),document.fonts.load('30px IDBold'),document.fonts.load('22px ISemi')]).then(()=>{renderAt(0);return true});
+</script>
+</body>
+</html>
