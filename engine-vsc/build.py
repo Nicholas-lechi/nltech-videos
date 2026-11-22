@@ -4,7 +4,7 @@ from kokoro_onnx import Kokoro
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TTS = "/home/claude/v3d/tts"
-VOICE, SPEED = "am_liam", 1.1
+VOICE, SPEED = "am_liam", 1.05
 SR = 24000
 CHAIN = "highpass=f=80,equalizer=f=3200:t=q:w=1.2:g=3,equalizer=f=250:t=q:w=1:g=-2,acompressor=threshold=-20dB:ratio=3:attack=5:release=80"
 

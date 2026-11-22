@@ -33,9 +33,9 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:linear-
 .tab{display:flex;align-items:center;gap:10px;padding:0 22px;color:#9d9d9d;font:21px ISemi;border-right:1px solid #2b2b2b}
 .tab.on{background:#1f1f1f;color:#ffffff;box-shadow:inset 0 2px 0 #0078d4}
 .crumbs{height:34px;color:#a9a9a9;font:19px ISemi;display:flex;align-items:center;padding-left:22px;flex:none}
-.ed{flex:1;position:relative;overflow:hidden;font:36px/56px JBM;color:#cccccc}
+.ed{flex:1;position:relative;overflow:hidden;font:33px/54px JBM;color:#cccccc}
 .lines{position:absolute;left:0;right:0}
-.ln{display:flex;height:56px;white-space:pre}
+.ln{display:flex;height:54px;white-space:pre}
 .ln .n{width:74px;text-align:right;padding-right:26px;color:#6e7681;flex:none}
 .ln.cur{background:rgba(255,255,255,.04)}.ln.cur .n{color:#cccccc}
 .ln.hl{background:rgba(255,210,63,.16);box-shadow:inset 4px 0 0 #ffd23f}
@@ -64,7 +64,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:linear-
 #prog i{position:absolute;left:0;top:0;bottom:0;background:var(--hi);border-radius:5px}
 #progl{position:absolute;left:0;right:0;top:1846px;text-align:center;color:var(--muted);font:26px IDBold;letter-spacing:2px}
 </style>
-</head>
+<!--HCSS--></head>
 <body>
 <div id="grid"></div>
 <img id="wm" src="file:///home/claude/nltech-videos/engine/assets/watermark_nltech.png">
@@ -102,12 +102,12 @@ const th=THEMES[S.theme]||THEMES.navy;['--bg1','--bg2','--ink','--muted','--hi',
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),eo=x=>{x=clamp(x);return 1-Math.pow(1-x,3)},eio=x=>{x=clamp(x);return x*x*(3-2*x)};
 const back=x=>{x=clamp(x);const c=1.7;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
 const $=id=>document.getElementById(id);
-$('chipt').textContent=`${S.series} · DAY ${S.day}`;$('ttl').textContent=S.title;
+$('chipt').textContent=S.tip?S.series:`${S.series} · DAY ${S.day}`;$('ttl').textContent=S.title;
 $('folder').textContent='▾ '+S.folder.toUpperCase();
 $('cd').textContent=`DAY ${S.day} OF ${S.of}`;$('ch').textContent=S.title;$('cs').textContent=S.series.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
-$('progl').textContent=`DAY ${S.day} / ${S.of}`;$('progi').style.width=(S.day/S.of*100)+'%';
+if(S.tip){$('prog').style.display='none';$('progl').textContent='FOLLOW FOR DAILY TIPS'}else{$('progl').textContent=`DAY ${S.day} / ${S.of}`;$('progi').style.width=(S.day/S.of*100)+'%'}
 const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const LH=56,GUT=74,CW=21.6;
+const LH=54,GUT=74,CW=19.8;const WH=window.__H__?1000:1180,PH=window.__H__?300:370;
 
 function state(t){
   const st={files:[],active:null,content:{},sidebar:true,term:[],termInput:null,hl:null,note:null,typing:false,zoom:false,mouse:{to:'center',t:-9}};
@@ -132,7 +132,7 @@ function caretXY(st){const s=st.content[st.active]||'';const ls=s.split('\n');re
 function targetXY(st,to){
   const side=st.sidebar?250:0;
   if(to==='explorer')return[90+60,44+14+50+42*2];
-  if(to==='terminal')return[58+side+400,1180-34-370+44+120];
+  if(to==='terminal')return[58+side+400,WH-34-PH+44+100];
   if(to==='editor'){const c=caretXY(st);return[58+side+GUT+c.col*CW+40,44+50+34+c.line*LH+60]}
   return[700,700];
 }
@@ -150,8 +150,8 @@ window.renderAt=function(t){
   const html=st.active?hljs.highlight(src,{language:'javascript'}).value:'';
   const c=caretXY(st);
   const hlines=html.split('\n');const nl=st.active?Math.max(1,src.split('\n').length):0;
-  const visible=Math.floor((1180-44-50-34-370-34)/LH);
-  const scroll=Math.max(0,c.line-visible+2);
+  const visible=Math.floor((WH-44-50-34-PH-34)/LH);
+  const scroll=Math.max(0,c.line-visible+4);
   let out='';for(let i=0;i<nl;i++){const isH=st.hl&&i+1>=st.hl.l0&&i+1<=st.hl.l1;out+=`<div class="ln ${i===c.line&&!isH?'cur':''} ${isH?'hl':''}"><span class="n">${i+1}</span><span>${hlines[i]||''}</span></div>`}
   if(out!==lastKey){$('lines').innerHTML=out;lastKey=out}
   $('lines').style.top=(-scroll*LH)+'px';
@@ -169,14 +169,14 @@ window.renderAt=function(t){
   const rk=(t-m.t-0.75)/0.4;$('ring').style.opacity=(m.to!=='editor'&&rk>0&&rk<1)?1-rk:0;$('ring').style.transform=`translate(${x1-26}px,${y1-26}px) scale(${0.4+rk})`;
   const endk=eo((t-(TL.duration-3.6))/0.5);let ca=Math.max(1-eo((t-3.6)/0.5),endk);
   if(endk>0){$('cd').textContent='NEXT UP';$('ch').textContent=S.next;$('cs').textContent='Follow so you don\'t miss it 🔔'}
-  else{$('cd').textContent=`DAY ${S.day} OF ${S.of}`;$('ch').textContent=S.title;$('cs').textContent=S.series.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())}
+  else{$('cd').textContent=S.tip?'QUICK TIP':`DAY ${S.day} OF ${S.of}`;$('ch').textContent=S.title;$('cs').textContent=S.tip?'Save this for later 🔖':'JavaScript Zero to Pro'}
   $('card').style.display=ca<=0.001?'none':'flex';$('card').style.opacity=ca;
   const b=TL.beats.find(b=>t>=b.t0-0.05&&t<=b.t1+0.25);let cap='';
   if(b){const W=b.words,ch=[];for(let i=0;i<W.length;i+=5)ch.push(W.slice(i,i+5));let ci=0;ch.forEach((cc,i)=>{if(t>=cc[0].t-0.02)ci=i});
     cap=ch[ci].map(w=>{const j=W.indexOf(w);return t>=w.t-0.02&&(j===W.length-1||t<W[j+1].t)?`<b>${esc(w.w)}</b>`:esc(w.w)}).join(' ')}
   $('cap').innerHTML='<div>'+cap+'</div>';
 };
-window.ready=Promise.all([document.fonts.load('36px JBM'),document.fonts.load('60px IDB'),document.fonts.load('30px IDBold'),document.fonts.load('22px ISemi')]).then(()=>{renderAt(0);return true});
+window.ready=Promise.all([document.fonts.load('33px JBM'),document.fonts.load('60px IDB'),document.fonts.load('30px IDBold'),document.fonts.load('22px ISemi')]).then(()=>{renderAt(0);return true});
 </script>
 </body>
 </html>

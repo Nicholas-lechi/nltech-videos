@@ -2,9 +2,9 @@ const { chromium } = require('playwright');
 const fs=require('fs'),{spawn,execFileSync}=require('child_process');
 const [,,mode,out]=process.argv;
 const TL=JSON.parse(fs.readFileSync('/home/claude/vsc/out/timeline.json'));
-async function page(b){const p=await b.newPage({viewport:{width:1080,height:1920},deviceScaleFactor:1});
-  p.on('pageerror',e=>console.log('ERR',e.message));await p.addInitScript(tl=>{window.__TL__=tl},TL);
-  await p.goto('file:///home/claude/vsc/scene.html');await p.evaluate(()=>window.ready);return p}
+const H=process.env.LAYOUT==='h';async function page(b){const p=await b.newPage({viewport:H?{width:1920,height:1080}:{width:1080,height:1920},deviceScaleFactor:1});
+  p.on('pageerror',e=>console.log('ERR',e.message));await p.addInitScript(([tl,h])=>{window.__TL__=tl;window.__H__=h},[TL,H]);
+  await p.goto(H?'file:///home/claude/vsc/scene-h.html':'file:///home/claude/vsc/scene.html');await p.evaluate(()=>window.ready);return p}
 async function part(b,i0,i1,file){const p=await page(b);
   const ff=spawn('ffmpeg',['-y','-loglevel','error','-f','image2pipe','-c:v','mjpeg','-r','30','-i','-','-c:v','libx264','-preset','veryfast','-crf','18','-pix_fmt','yuv420p',file],{stdio:['pipe','inherit','inherit']});
   for(let i=i0;i<i1;i++){await p.evaluate(t=>renderAt(t),i/30);const buf=await p.screenshot({type:'jpeg',quality:92});if(!ff.stdin.write(buf))await new Promise(r=>ff.stdin.once('drain',r));if((i-i0)%300===0)console.log(file.split('/').pop(),i-i0,'/',i1-i0)}

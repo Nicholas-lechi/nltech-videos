@@ -1,0 +1,21 @@
+SPEC = {
+ "series": "60-SECOND JS TIP", "day": 0, "of": 0,
+ "title": "?? vs || in JavaScript", "folder": "tips",
+ "theme": "white", "next": "More quick tips every day", "seed": 301, "tip": True,
+ "steps": [
+  {"say": "This tiny bug hides in a lot of JavaScript code. Let's say a user sets their volume to zero, and we want a default of fifty if nothing is set.",
+   "cap": "This tiny bug hides in a lot of JavaScript code. A user sets their volume to 0, and we want a default of 50 if nothing is set.",
+   "do": [("open", "settings.js", ""), ("type", "const volume = 0;\nconst level = volume || 50;\nconsole.log(level);")]},
+  {"say": "Run it, and you get fifty. The user's zero was thrown away. That's because or treats zero, empty strings and false as missing.",
+   "cap": "Run it, and you get 50. The user's 0 was thrown away, because || treats 0, \"\" and false as missing.",
+   "do": [("term", "node settings.js", ["50"]), ("hl", 2, 2), ("note", "|| replaces 0, \"\", false too")]},
+  {"say": "Use the nullish operator instead: two question marks. It only uses the default when the value is null or undefined.",
+   "do": [("zoom", True), ("type", "\nconst fixed = volume ?? 50;\nconsole.log(fixed);"), ("zoom", False)]},
+  {"say": "Run it again. Now we get zero, exactly what the user chose.",
+   "cap": "Run it again. Now we get 0, exactly what the user chose. ✅",
+   "do": [("clear",), ("term", "node settings.js", ["50", "0"]), ("hl", 4, 4), ("note", "?? only replaces null / undefined")]},
+  {"say": "Rule of thumb: use double question mark for defaults. Save this, and follow for a new tip every day.",
+   "cap": "Rule of thumb: use ?? for defaults. Save this, and follow for a new tip every day!",
+   "do": [("wait", 0.4)]},
+ ],
+}

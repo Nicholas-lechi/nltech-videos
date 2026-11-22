@@ -1,0 +1,11 @@
+<style id="hcss">
+html,body{width:1920px!important;height:1080px!important}
+#wm{top:40px!important;left:auto!important;right:60px!important;transform:none!important;width:240px!important}
+#chip{top:200px!important;left:1270px!important;right:60px!important;text-align:left!important}
+#ttl{top:270px!important;left:1270px!important;right:50px!important;text-align:left!important;white-space:normal!important;font-size:64px!important;line-height:1.05!important}
+#clip{left:50px!important;top:40px!important;width:1180px!important;height:1000px!important}.panel{height:300px!important}#chip span{font-size:24px!important}
+#cap{left:1270px!important;right:60px!important;top:520px!important;height:320px!important;justify-content:flex-start!important;text-align:left!important;font-size:58px!important}
+#prog{left:1270px!important;right:60px!important;top:960px!important}
+#progl{left:1270px!important;right:auto!important;top:985px!important;text-align:left!important}
+#note{bottom:360px!important}
+</style>
