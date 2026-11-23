@@ -125,11 +125,11 @@ def build(spec_path):
     for e in events:
         if e["k"] in ("type", "term"):
             for kt, ch in e["keys"]:
-                click(kt, 0.05 * (0.7 + crng.random() * 0.6), tone=2200 + crng.random() * 900)
+                click(kt, 0.012 * (0.7 + crng.random() * 0.6), tone=1300 + crng.random() * 400)
         if e["k"] == "term":
-            click(e["enter"], 0.08, dur=0.03, tone=1500)
+            click(e["enter"], 0.02, dur=0.03, tone=900)
         if e["k"] == "mouse" and e["to"] in ("explorer", "terminal"):
-            click(e["t"] + 0.75, 0.06, dur=0.012, tone=3500)
+            click(e["t"] + 0.75, 0.015, dur=0.012, tone=1800)
     wav = f"{ROOT}/out/voice.wav"
     os.makedirs(f"{ROOT}/out", exist_ok=True)
     sf.write(wav, mix, SR)
